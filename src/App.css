@@ -1,0 +1,71 @@
+.chart-buttons {
+  display: flex;
+  justify-content: space-between;
+  width: calc(100% - 14px);
+  margin: 0 auto;
+  padding-top: 20px;
+}
+
+.chart-buttons button {
+  font-size: 1em;
+  height: 33px;
+  border: none;
+  background: #00BCD4;
+  color: #fff;
+  border-radius: 3px;
+  margin: 0;
+  padding: 8px;
+}
+
+.chart-buttons button.active {
+  background: cadetblue;
+}
+
+rect.bordered {
+  stroke: #E6E6E6;
+  stroke-width:2px;   
+}
+
+text.mono {
+  font-size: 9pt;
+  font-family: Consolas, courier;
+  fill: #aaa;
+}
+
+text.axis-workweek {
+  fill: #000;
+}
+
+text.axis-worktime {
+  fill: #000;
+}
+
+div.tooltip {	
+  position: absolute;
+  text-align: center;
+  width: 70px;
+  height: 14px;
+  padding: 2px;
+  font: 11px sans-serif;
+  background: #000000b3;
+  border: 0px;
+  border-radius: 4px;
+  pointer-events: none;
+  color: #fff;		
+}
+
+div.tooltip-heap {	
+  width: 100px;
+}
+
+.color-container {
+  padding: 10px 0 0 10px;
+}
+
+.color-container span {
+  background: rgb(40, 137, 226);
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  margin-left: 1px;
+}
