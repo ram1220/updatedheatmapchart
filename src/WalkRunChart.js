@@ -24,7 +24,7 @@ class WalkRunChart extends Component {
             top: 20,
             right: 50,
             bottom: 30,
-            left: 20
+            left: 50
         }
         const width = 960 - margin.left - margin.right
         const height = 500 - margin.top - margin.bottom
@@ -33,7 +33,7 @@ class WalkRunChart extends Component {
             .rangeRound([0, width])
 
         const y = d3.scaleLinear()
-            .rangeRound([height, 0])
+            .rangeRound([height,0])
 
         const z = d3.scaleOrdinal()
             .range(["#98abc5", "#8a89a6"]);
@@ -42,7 +42,7 @@ class WalkRunChart extends Component {
             .scale(x)
             .tickFormat(d3.timeFormat('%H'))
 
-        const yAxis = d3.axisRight()
+        const yAxis = d3.axisLeft()
             .scale(y)
 
         const svg = d3.select('#heat-map')
@@ -122,7 +122,7 @@ class WalkRunChart extends Component {
 
         svg.append('g')
             .attr('class', 'axis axis--y')
-            .attr('transform', `translate(${width},0)`)
+            .attr('transform',0, `translate(${width})`)
             .call(yAxis)
 
 

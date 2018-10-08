@@ -24,7 +24,7 @@ class WalkRunWeeklyChart extends Component {
             top: 20,
             right: 50,
             bottom: 30,
-            left: 20
+            left: 50
         }
         const width = 960 - margin.left - margin.right
         const height = 500 - margin.top - margin.bottom
@@ -42,7 +42,7 @@ class WalkRunWeeklyChart extends Component {
             .scale(x)
             .tickFormat(d3.timeFormat('%m/%d'))
 
-        const yAxis = d3.axisRight()
+        const yAxis = d3.axisLeft()
             .scale(y)
 
         const svg = d3.select('#heat-map')
@@ -128,7 +128,7 @@ class WalkRunWeeklyChart extends Component {
 
         svg.append('g')
             .attr('class', 'axis axis--y')
-            .attr('transform', `translate(${width},0)`)
+            .attr('transform',0, `translate(${width})`)
             .call(yAxis)
 
 

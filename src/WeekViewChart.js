@@ -10,15 +10,6 @@ class WeeKViewChart extends Component {
     constructor(props) {
         super(props);
         this.data = null;
-        this.state = {
-            activeStatus: 'DEFAULT'
-        }
-        this.statusColor = {
-            'AWAKE': ["#99E3BA", "#6ED79D", "#4FAD7A", "#3E875F", "#2C6044", "#12271B"],
-            'ASLEEP': ["#F49992", "#F17C73", "#EE6055", "#AE463E", "#6D2C27", "#2C1210"]
-        }
-        
-        this.changeStatus = this.changeStatus.bind(this);
     }
 
     componentDidMount() {
@@ -44,34 +35,11 @@ class WeeKViewChart extends Component {
         
         days.forEach(function (d, di) {
             times.forEach(function (t, ti) {
-                let obj = {
+                data.push({
                     day: di + 1,
                     hour: ti + 1,
                     value: 'DEFAULT'
-                };
-                let filteredJson = jsonData.filter(function (o) {
-                    return (o.day === di && o.hour === ti+1);
                 });
-                if(filteredJson && filteredJson.length > 0) {
-                    let statusCount = {};
-                    filteredJson.forEach(function(o) {
-                        if(statusCount[o.value]) {
-                            statusCount[o.value] += o.endMin - o.startMin;
-                        } else {
-                            statusCount[o.value] = o.endMin - o.startMin;
-                        }
-                    });
-                    for(let val in statusCount) {
-                        if(statusCount[val] && statusCount[val] > 0) {
-                            obj.minute = statusCount[val];
-                            obj.value = val;
-                            data.push(obj);        
-                        }
-                    }
-                } else {
-                    data.push(obj);
-                }
-                
             });
         });
         this.data = data;
@@ -79,15 +47,13 @@ class WeeKViewChart extends Component {
         this.times = times;
         console.log(data);
 
-        this.drawChart();
+        this.drawChart(jsonData);
     }
 
-    drawChart() {
+    drawChart(jsonData) {
         const data = this.data;
         const days = this.days;
         const times = this.times;
-        const statusColor = this.statusColor;
-        const activeStatus = this.state.activeStatus;
         const margin = {
                 top: 50,
                 right: 0,
@@ -104,8 +70,6 @@ class WeeKViewChart extends Component {
                 'ASLEEP': "#d83131",
                 'AWAKE': "#2889e2"
             };
-
-        const statusData = data.filter((o) => o.value === 'activeStatus');
         
         const svg = d3.select("#heat-map svg")
             .attr("width", width + margin.left + margin.right)
@@ -121,7 +85,7 @@ class WeeKViewChart extends Component {
             })
             .attr("x", 0)
             .attr("y", function (d, i) {
-                return i * gridSize;
+                return (6-i) * gridSize;
             })
             .style("text-anchor", "end")
             .attr("transform", "translate(-6," + gridSize / 1.5 + ")")
@@ -138,7 +102,7 @@ class WeeKViewChart extends Component {
             .attr("x", function (d, i) {
                 return i * gridSize;
             })
-            .attr("y", 0)
+            .attr("y", 290)
             .style("text-anchor", "middle")
             .attr("transform", "translate(" + gridSize / 2 + ", -6)")
             .attr("class", function (d, i) {
@@ -171,70 +135,49 @@ class WeeKViewChart extends Component {
             .attr("width", gridSize)
             .attr("height", gridSize)
             .style("fill", function (d) {
-                let index = 0;
-                if(activeStatus !== 'DEFAULT' && d.value === activeStatus) {
-                    // if(d.minute <= 10) {
-                    //     index = 0;
-                    // } else if(d.minute <= 20) {
-                    //     index = 1;
-                    // }  else if(d.minute <= 30) {
-                    //     index = 2;
-                    // }  else if(d.minute <= 40) {
-                    //     index = 3;
-                    // }  else if(d.minute <= 50) {
-                    //     index = 4;
-                    // }  else if(d.minute <= 60) {
-                    //     index = 5;
-                    // }
-                    
-                    return colors[d.value];//statusColor[activeStatus][index];
-                    
-                } else {
-                    return colors['DEFAULT'];
-                }
-            })
-            .on("mouseover", function(d, i) {
-                if(activeStatus !== 'DEFAULT' && d.value === activeStatus && d.minute) {
-                    div.transition()		
-                        .duration(200)		
-                        .style("opacity", .9);		
-                    div	.html(d.value + ': ' + (d.minute) + ' min(s)')	
-                        .style("left", (d3.event.pageX) + "px")		
-                        .style("top", (d3.event.pageY - 28) + "px");
-                }
-                	
-            })
-            .on("mouseout", function(d) {
-                if(activeStatus !== 'DEFAULT' && d.value === activeStatus && d.minute) {
-                    div.transition()		
-                        .duration(500)		
-                        .style("opacity", 0);	
-                }		
-                
+                return colors['DEFAULT'];
             });
-    }
 
-    changeStatus(event) {
-        const status = event.currentTarget.getAttribute('data-status');
-        this.setState({activeStatus: status.toUpperCase()}, () =>{
-            this.drawChart();
-        });
+        const minCards = svg.selectAll(".status")
+            .data(jsonData)
+            .enter()
+            .append("rect")
+            .attr("x", function (d) {
+                return ((d.hour) * gridSize) + ((d.startMin) * gridSize/60);
+            })
+            .attr("y", function (d) {
+                return ((gridSize * 6)) - (d.day * gridSize);
+            })
+            .attr("rx", 4)
+            .attr("ry", 4)
+            .attr("class", "status")
+            .attr("height", gridSize-4)
+            .attr("width", function (d) {
+                return (d.endMin - d.startMin) * (gridSize/60);
+            })
+            .style("fill", function (d) {
+                return colors[d.value]
+            })
+            .attr("transform", "translate(0,2)")
+            .on("mouseover", function(d, i) {
+                const diff = (d.endMin - d.startMin);
+                div.transition()		
+                    .duration(200)		
+                    .style("opacity", .9);		
+                div	.html(d.value + ': ' + diff + ' min(s)')	
+                    .style("left", (d3.event.pageX) + "px")		
+                    .style("top", (d3.event.pageY - 28) + "px");	
+            })
+            .on("mouseout", function(d) {		
+                div.transition()		
+                    .duration(500)		
+                    .style("opacity", 0);	
+            });
     }
 
     render() {
         return (
             <React.Fragment>
-
-                <div className="status-container">
-                    <button data-status="default" onClick={this.changeStatus}>Default</button>
-                    <button data-status="awake" onClick={this.changeStatus}>Awake</button>
-                    <button data-status="asleep" onClick={this.changeStatus}>Asleep</button>
-                </div>
-                {/* <div className="color-container">
-                    { this.state.activeStatus !== 'DEFAULT' && 
-                        this.statusColor[this.state.activeStatus].map((o, i) => <span key={i} style={{'background': o}} />)
-                    }
-                </div> */}
                 <div id = "heat-map">
                     <svg />
                 </div>
